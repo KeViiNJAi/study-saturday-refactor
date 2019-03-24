@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import { connect } from 'react-redux'
 
 import StudentList from './StudentList.js';
 import SingleStudent from './SingleStudent.js';
 import NewStudentForm from './NewStudentForm.js';
+import {fetchStudents} from '../store/students'
 
-export default class Main extends Component {
+class Main extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      students: [],
       selectedStudent: {},
       showStudent: false,
     };
@@ -20,18 +21,7 @@ export default class Main extends Component {
   }
 
   componentDidMount() {
-    this.getStudents();
-  }
-
-  async getStudents() {
-    console.log('fetching');
-    try {
-      const { data } = await axios.get('/student');
-      this.setState({ students: data });
-      console.log('THis is the State', this.state);
-    } catch (err) {
-      console.error(err);
-    }
+    this.props.getStudents()
   }
 
   selectStudent(student) {
@@ -71,7 +61,7 @@ export default class Main extends Component {
             </tr>
           </thead>
           <StudentList
-            students={this.state.students}
+            students={this.props.students}
             selectStudent={this.selectStudent}
           />
         </table>
@@ -82,3 +72,13 @@ export default class Main extends Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  students: state.students
+})
+
+const mapDispatchToProps = dispatch => ({
+  getStudents: () => dispatch(fetchStudents())
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Main)
